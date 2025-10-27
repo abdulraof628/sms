@@ -1,37 +1,56 @@
 <script setup lang="ts">
-import type { CheckboxRootEmits, CheckboxRootProps } from 'reka-ui'
-import { cn } from '@/lib/utils'
+import { computed } from 'vue'
+import { CheckboxIndicator, CheckboxRoot } from 'reka-ui'
 import { Check } from 'lucide-vue-next'
-import { CheckboxIndicator, CheckboxRoot, useForwardPropsEmits } from 'reka-ui'
-import { computed, type HTMLAttributes } from 'vue'
+import { cn } from '@/lib/utils'
 
-const props = defineProps<CheckboxRootProps & { class?: HTMLAttributes['class'] }>()
-const emits = defineEmits<CheckboxRootEmits>()
+interface Props {
+  id?: string
+  modelValue?: boolean | 'indeterminate'
+  checked?: boolean | 'indeterminate'
+  disabled?: boolean
+  required?: boolean
+  name?: string
+  value?: string
+  class?: string
+}
 
-const delegatedProps = computed(() => {
-  const { class: _, ...delegated } = props
-
-  return delegated
+const props = withDefaults(defineProps<Props>(), {
+  modelValue: false,
 })
 
-const forwarded = useForwardPropsEmits(delegatedProps, emits)
+const emits = defineEmits<{
+  'update:modelValue': [value: boolean | 'indeterminate']
+}>()
+
+// Handle both v-model and checked prop for backward compatibility
+const isChecked = computed(() => {
+  if (props.modelValue !== undefined) return props.modelValue
+  if (props.checked !== undefined) return props.checked
+  return false
+})
+
+const handleUpdateModelValue = (value: boolean | 'indeterminate') => {
+  emits('update:modelValue', value)
+}
 </script>
 
 <template>
   <CheckboxRoot
-    data-slot="checkbox"
-    v-bind="forwarded"
-    :class="
-      cn('peer border-input data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground data-[state=checked]:border-primary focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive size-4 shrink-0 rounded-[4px] border shadow-xs transition-shadow outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50',
-         props.class)"
+    :id="id"
+    :model-value="isChecked"
+    :disabled="disabled"
+    :required="required"
+    :name="name"
+    :value="value"
+    :class="cn(
+      'peer h-4 w-4 shrink-0 rounded-sm border border-primary shadow transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground',
+      props.class
+    )"
+    @update:model-value="handleUpdateModelValue"
   >
-    <CheckboxIndicator
-      data-slot="checkbox-indicator"
-      class="flex items-center justify-center text-current transition-none"
-    >
-      <slot>
-        <Check class="size-3.5" />
-      </slot>
+    <CheckboxIndicator class="flex items-center justify-center text-current">
+      <Check class="h-4 w-4" />
     </CheckboxIndicator>
   </CheckboxRoot>
 </template>

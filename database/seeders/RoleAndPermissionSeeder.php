@@ -15,20 +15,14 @@ class RoleAndPermissionSeeder extends Seeder
 
         // Create permissions
         $permissions = [
-            // Business dashboard permissions
-            'view-business-dashboard',
+            // Super Admin dashboard permissions
+            'view-superadmin-dashboard',
 
             // User management permissions
             'view-users',
             'create-users',
             'edit-users',
             'delete-users',
-            
-            // Tenant management permissions
-            'view-tenants',
-            'create-tenants',
-            'edit-tenants',
-            'delete-tenants',
             
             // Role management permissions
             'view-roles',
@@ -51,11 +45,11 @@ class RoleAndPermissionSeeder extends Seeder
             'edit-daily-reports',
             'delete-daily-reports',
 
-            // School management permissions
-            'view-schools',
-            'create-schools',
-            'edit-schools',
-            'delete-schools',
+            // Branch management permissions
+            'view-branches',
+            'create-branches',
+            'edit-branches',
+            'delete-branches',
 
             // Class management permissions
             'view-classes',
@@ -69,56 +63,33 @@ class RoleAndPermissionSeeder extends Seeder
             'edit-students',
             'delete-students',
 
-            // Organization management permissions
-            'view-organizations',
-            'create-organizations',
-            'edit-organizations',
-            'delete-organizations',
+            // Tenant management permissions
+            'view-tenants',
+            'create-tenants',
+            'edit-tenants',
+            'delete-tenants',
         ];
 
         foreach ($permissions as $permission) {
             Permission::firstOrCreate(['name' => $permission]);
         }
 
-        // Create super-admin role and assign all permissions
-        $superAdminRole = Role::firstOrCreate(['name' => 'developer']);
-        $superAdminRole->givePermissionTo(Permission::all());
-
-        // Create super-admin role and assign specific permissions
+        // Create super-admin role and assign only superadmin-specific permissions
         $superAdminRole = Role::firstOrCreate(['name' => 'super-admin']);
         $superAdminRole->givePermissionTo([
-            'view-business-dashboard',
-            'view-dashboard',
-
-            'view-users',
-            'create-users',
-            'edit-users',
-            'delete-users',
-
+            'view-superadmin-dashboard',
             'view-tenants',
             'create-tenants',
             'edit-tenants',
             'delete-tenants',
-
-            'view-schools',
-            'create-schools',
-            'edit-schools',
-            'delete-schools',
-
-            'view-classes',
-            'create-classes',
-            'edit-classes',
-            'delete-classes',
-
-            'view-students',
-            'create-students',
-            'edit-students',
-            'delete-students',
-
-            'view-organizations',
-            'create-organizations',
-            'edit-organizations',
-            'delete-organizations',
+            'view-roles',
+            'create-roles',
+            'edit-roles',
+            'delete-roles',
+            'view-permissions',
+            'create-permissions',
+            'edit-permissions',
+            'delete-permissions',
         ]);
 
         // Create admin role and assign specific permissions
@@ -126,10 +97,10 @@ class RoleAndPermissionSeeder extends Seeder
         $adminRole->givePermissionTo([
             'view-dashboard',
 
-            'view-schools',
-            'create-schools',
-            'edit-schools',
-            'delete-schools',
+            'view-branches',
+            'create-branches',
+            'edit-branches',
+            'delete-branches',
 
             'view-classes',
             'create-classes',
@@ -140,6 +111,12 @@ class RoleAndPermissionSeeder extends Seeder
             'create-students',
             'edit-students',
             'delete-students',
+
+            // User management permissions (admin only)
+            'view-users',
+            'create-users',
+            'edit-users',
+            'delete-users',
         ]);
 
         $teacherRole = Role::firstOrCreate(['name' => 'teacher']);
@@ -149,6 +126,15 @@ class RoleAndPermissionSeeder extends Seeder
             'create-daily-reports',
             'edit-daily-reports',
             'delete-daily-reports',
+        ]);
+
+        $principalRole = Role::firstOrCreate(['name' => 'principal']);
+        $principalRole->givePermissionTo([
+            'view-dashboard',
+            'view-branches',
+            'view-classes',
+            'view-students',
+            'view-daily-reports',
         ]);
 
         $studentRole = Role::firstOrCreate(['name' => 'student']);

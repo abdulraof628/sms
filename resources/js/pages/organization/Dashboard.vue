@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { 
     Users, 
-    School, 
+    Building2, 
     GraduationCap, 
     TrendingUp, 
     Calendar,
@@ -17,10 +17,10 @@ import {
 import { computed } from 'vue';
 
 interface DashboardProps {
-    schoolCount: number;
+    branchCount: number;
     studentCount: number;
     classCount: number;
-    schoolStatusBreakdown: {
+    branchStatusBreakdown: {
         active: number;
         inactive: number;
     };
@@ -34,7 +34,7 @@ interface DashboardProps {
         female: number;
         other: number;
     };
-    recentSchools: Array<{
+    recentBranches: Array<{
         id: string;
         name: string;
         created_at: string;
@@ -80,26 +80,26 @@ const totalStudents = computed(() => {
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-6 p-6">
             <!-- Welcome Section -->
-            <div class="mb-4">
+            <div class="flex items-center justify-between">
                 <h1 class="text-3xl font-bold text-foreground">Welcome to Your Dashboard</h1>
-                <p class="text-muted-foreground mt-2">Here's an overview of your school management system</p>
+                <p class="text-muted-foreground mt-2">Here's an overview of your branch management system</p>
             </div>
 
             <!-- Statistics Cards -->
             <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                <!-- Schools Card -->
+                <!-- Branches Card -->
                 <Card class="hover:shadow-lg transition-shadow duration-200">
                     <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle class="text-sm font-medium">Total Schools</CardTitle>
-                        <School class="h-4 w-4 text-muted-foreground" />
+                        <CardTitle class="text-sm font-medium">Total Branches</CardTitle>
+                        <Building2 class="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div class="text-2xl font-bold">{{ schoolCount }}</div>
+                        <div class="text-2xl font-bold">{{ branchCount }}</div>
                         <div class="flex items-center space-x-2 text-xs text-muted-foreground">
                             <UserCheck class="h-3 w-3 text-green-500" />
-                            <span>{{ schoolStatusBreakdown.active }} active</span>
+                            <span>{{ branchStatusBreakdown.active }} active</span>
                             <UserX class="h-3 w-3 text-red-500 ml-2" />
-                            <span>{{ schoolStatusBreakdown.inactive }} inactive</span>
+                            <span>{{ branchStatusBreakdown.inactive }} inactive</span>
                         </div>
                     </CardContent>
                 </Card>
@@ -129,7 +129,7 @@ const totalStudents = computed(() => {
                         <div class="text-2xl font-bold">{{ classCount }}</div>
                         <div class="flex items-center space-x-2 text-xs text-muted-foreground">
                             <BarChart3 class="h-3 w-3 text-purple-500" />
-                            <span>Across {{ schoolCount }} schools</span>
+                            <span>Across {{ branchCount }} branches</span>
                         </div>
                     </CardContent>
                 </Card>
@@ -164,17 +164,17 @@ const totalStudents = computed(() => {
                 <!-- Class Distribution Chart -->
                 <Card>
                     <CardHeader>
-                        <CardTitle>Classes per School</CardTitle>
-                        <CardDescription>Distribution of classes across schools</CardDescription>
+                        <CardTitle>Classes per Branch</CardTitle>
+                        <CardDescription>Distribution of classes across branches</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <div class="space-y-4">
-                            <div v-for="school in classDistribution" :key="school.id" class="flex items-center justify-between">
+                            <div v-for="branch in classDistribution" :key="branch.id" class="flex items-center justify-between">
                                 <div class="flex items-center space-x-3">
                                     <div class="w-2 h-2 rounded-full bg-primary"></div>
-                                    <span class="text-sm font-medium">{{ school.name }}</span>
+                                    <span class="text-sm font-medium">{{ branch.name }}</span>
                                 </div>
-                                <Badge variant="secondary">{{ school.classes_count }} classes</Badge>
+                                <Badge variant="secondary">{{ branch.classes_count }} classes</Badge>
                             </div>
                             <div v-if="classDistribution.length === 0" class="text-center text-muted-foreground py-8">
                                 No class distribution data available
@@ -192,10 +192,10 @@ const totalStudents = computed(() => {
                     <CardContent>
                         <div class="space-y-4">
                             <div class="space-y-3">
-                                <h4 class="text-sm font-semibold text-muted-foreground">Recent Schools</h4>
-                                <div v-for="school in recentSchools.slice(0, 3)" :key="school.id" class="flex items-center justify-between text-sm">
-                                    <span>{{ school.name }}</span>
-                                    <span class="text-muted-foreground">{{ formatDate(school.created_at) }}</span>
+                                <h4 class="text-sm font-semibold text-muted-foreground">Recent Branches</h4>
+                                <div v-for="branch in recentBranches.slice(0, 3)" :key="branch.id" class="flex items-center justify-between text-sm">
+                                    <span>{{ branch.name }}</span>
+                                    <span class="text-muted-foreground">{{ formatDate(branch.created_at) }}</span>
                                 </div>
                             </div>
                             
@@ -219,11 +219,11 @@ const totalStudents = computed(() => {
                 </CardHeader>
                 <CardContent>
                     <div class="grid gap-4 md:grid-cols-3">
-                        <a href="/schools/create" class="flex items-center space-x-3 p-4 rounded-lg border hover:bg-muted/50 transition-colors">
-                            <School class="h-5 w-5 text-primary" />
+                        <a href="/branches/create" class="flex items-center space-x-3 p-4 rounded-lg border hover:bg-muted/50 transition-colors">
+                            <Building2 class="h-5 w-5 text-primary" />
                             <div>
-                                <div class="font-medium">Add New School</div>
-                                <div class="text-sm text-muted-foreground">Register a new school</div>
+                                <div class="font-medium">Add New Branch</div>
+                                <div class="text-sm text-muted-foreground">Register a new branch</div>
                             </div>
                         </a>
                         

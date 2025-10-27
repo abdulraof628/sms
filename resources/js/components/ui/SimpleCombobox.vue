@@ -1,20 +1,18 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
-import { CheckIcon, ChevronsUpDownIcon, SearchIcon } from 'lucide-vue-next'
+import { ref, computed, watch, nextTick, onMounted } from 'vue'
+import { CheckIcon, ChevronsUpDownIcon } from 'lucide-vue-next'
 import { cn } from '@/lib/utils'
-import {
-  Combobox,
-  ComboboxAnchor,
-  ComboboxInput,
-  ComboboxTrigger,
-  ComboboxList,
-  ComboboxItem,
-  ComboboxItemIndicator,
-  ComboboxEmpty,
-  ComboboxGroup,
-  ComboboxViewport,
-} from './combobox'
 import { Button } from './button'
+import { Popover, PopoverTrigger, PopoverContent } from './popover'
+import {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandItem,
+  CommandItemIndicator,
+  CommandEmpty,
+  CommandGroup,
+} from './command'
 
 interface Option {
   value: string
@@ -36,6 +34,7 @@ const emit = defineEmits(['update:modelValue'])
 
 const open = ref(false)
 const search = ref('')
+const triggerRef = ref<HTMLElement | null>(null)
 
 const displayValue = computed(() => {
   if (!props.modelValue) return props.placeholder || 'Select an option'
@@ -63,54 +62,68 @@ const handleSelect = (value: string) => {
 const handleInputChange = (event: Event) => {
   search.value = (event.target as HTMLInputElement).value
 }
+
+watch(() => open.value, async (newOpen) => {
+  if (newOpen) await nextTick()
+})
+
+onMounted(async () => {
+  await nextTick()
+})
+
+// Helper function to get a valid key for CommandItem
+const getItemKey = (value: string, index: number) => {
+  return value === '' ? `__empty-string-${index}` : value
+}
+
+// Helper function to get the actual value when selecting
+const getActualValue = (key: string) => {
+  return key.startsWith('__empty-string-') ? '' : key
+}
+
+// Check if an option is selected
+const isSelected = (value: string) => {
+  return props.modelValue === value
+}
 </script>
 
 <template>
   <div :class="cn('relative w-full', props.class)">
-    <Combobox :open="open" @update:open="open = $event">
-      <ComboboxAnchor as-child>
-        <ComboboxTrigger as-child>
-          <Button variant="outline" class="w-full justify-between">
-            {{ displayValue }}
-            <ChevronsUpDownIcon class="ml-2 h-4 w-4 shrink-0 opacity-50" />
-          </Button>
-        </ComboboxTrigger>
-      </ComboboxAnchor>
-      <ComboboxList>
-        <div class="relative w-full min-w-full items-center">
-          <ComboboxInput 
+    <Popover :open="open" @update:open="open = $event">
+      <PopoverTrigger as-child>
+        <Button ref="triggerRef" :disabled="props.disabled" variant="outline" class="w-full justify-between">
+          {{ displayValue }}
+          <ChevronsUpDownIcon class="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent class="w-(--reka-popover-trigger-width) p-0">
+        <Command>
+          <CommandInput 
             :value="search"
             @input="handleInputChange"
-            class="mt-0.5 focus-visible:ring-0 border-0 border-b rounded-none h-10" 
-            :placeholder="placeholder || 'Search...'" 
+            :placeholder="props.placeholder || 'Search...'"
           />
-          <span class="absolute start-0 inset-y-0 flex items-center justify-center px-3">
-            <SearchIcon class="size-4 text-muted-foreground" />
-          </span>
-        </div>
-        <ComboboxEmpty>
-          {{ emptyMessage || 'No results found.' }}
-        </ComboboxEmpty>
-        <ComboboxViewport v-if="props.options.length > 0">
-          <ComboboxGroup>
-            <ComboboxItem
-              v-for="option in filteredOptions"
-              :key="option.value"
-              :value="option.value"
-              class="w-full"
-              @select="handleSelect(option.value)"
-            >
-              {{ option.label }}
-              <ComboboxItemIndicator>
-                <CheckIcon class="ml-auto h-4 w-4" />
-              </ComboboxItemIndicator>
-            </ComboboxItem>
-          </ComboboxGroup>
-        </ComboboxViewport>
-        <div v-else class="p-2 text-sm text-muted-foreground text-center">
-          No item to be select
-        </div>
-      </ComboboxList>
-    </Combobox>
+          <CommandList>
+            <CommandEmpty>
+              {{ props.emptyMessage || 'No results found.' }}
+            </CommandEmpty>
+            <CommandGroup>
+              <CommandItem
+                v-for="(option, index) in filteredOptions"
+                :key="getItemKey(option.value, index)"
+                :value="option.value === '' ? '__empty_value__' : option.value"
+                :class="cn('w-full cursor-pointer', isSelected(option.value) && 'bg-accent text-accent-foreground')"
+                @select="() => handleSelect(option.value)"
+              >
+                {{ option.label }}
+                <CommandItemIndicator>
+                  <CheckIcon class="ml-auto h-4 w-4" />
+                </CommandItemIndicator>
+              </CommandItem>
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
   </div>
 </template> 

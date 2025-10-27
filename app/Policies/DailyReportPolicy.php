@@ -34,7 +34,7 @@ class DailyReportPolicy
         }
         
         // Admin can view all reports
-        return $user->hasRole(['super-admin', 'developer']);
+        return $user->hasRole('super-admin');
     }
 
     /**
@@ -43,7 +43,7 @@ class DailyReportPolicy
     public function create(User $user): bool
     {
         // Only teachers can create daily reports
-        return $user->hasRole(['teacher', 'super-admin', 'developer']);
+        return $user->hasRole(['teacher', 'super-admin']);
     }
 
     /**
@@ -52,7 +52,7 @@ class DailyReportPolicy
     public function update(User $user, DailyReport $dailyReport): bool
     {
         // Only the teacher who created the report can update it
-        return $user->hasRole(['teacher', 'super-admin', 'developer']) && $user->id === $dailyReport->teacher_id;
+        return $user->hasRole(['teacher', 'super-admin']) && $user->id === $dailyReport->teacher_id;
     }
 
     /**
@@ -61,8 +61,8 @@ class DailyReportPolicy
     public function delete(User $user, DailyReport $dailyReport): bool
     {
         // Only the teacher who created the report or admin can delete it
-        return ($user->hasRole(['teacher', 'super-admin', 'developer']) && $user->id === $dailyReport->teacher_id) || 
-               $user->hasRole(['super-admin', 'developer']);
+        return ($user->hasRole(['teacher', 'super-admin']) && $user->id === $dailyReport->teacher_id) || 
+               $user->hasRole('super-admin');
     }
 
     /**

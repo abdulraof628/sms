@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\School;
-use App\Models\SchoolClass;
+use App\Models\Branch;
+use App\Models\BranchClass;
 use App\Models\Student;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -15,20 +15,20 @@ class StudentSeeder extends Seeder
      */
     public function run(): void
     {
-        // Ensure we have at least one school and class
-        $school = School::firstOrCreate(
-            ['name' => 'Example School'],
+        // Ensure we have at least one branch and class
+        $branch = Branch::firstOrCreate(
+            ['name' => 'Example Branch'],
             ['address' => '123 Education St, Learning City, 12345']
         );
 
-        $class = SchoolClass::firstOrCreate(
+        $class = BranchClass::firstOrCreate(
             ['code' => 'G1', 'name' => 'Grade 1']
         );
 
         // Create 30 students
         Student::factory()
             ->count(30)
-            ->for($school)
+            ->for($branch)
             ->create([
                 'class' => $class->code,
             ]);

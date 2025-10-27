@@ -44,6 +44,6 @@ class CreateAdmin extends Command
             'email' => $responses['email'],
             'password' => $responses['password'],
             'is_new' => true,
-        ])->assignRole('developer');
+        ])->assignRole('super-admin');
     }
 }

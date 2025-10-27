@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\Organization;
-use App\Models\SchoolClass;
-use App\Models\School;
+use App\Models\BranchClass;
+use App\Models\Branch;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -21,23 +21,36 @@ class DatabaseSeeder extends Seeder
         $this->call(RoleAndPermissionSeeder::class);
 
         // Create super-admin user
-        User::firstOrCreate([
-            'email' => 'abdulraof@gmail.com',
-            'password' => Hash::make('123456789'),
-            'is_new' => false,
-        ])->assignRole('developer');
+        User::firstOrCreate(
+            ['email' => 'abdulraof@gmail.com'],
+            [
+                'name' => 'Abdul Raof',
+                'password' => Hash::make('123456789'),
+                'is_new' => false,
+            ]
+        )->assignRole('super-admin');
         
-        // Create a default school if it doesn't exist
-        $school = School::firstOrCreate(
-            ['name' => 'Example School'],
+        // Create a principal user if it doesn't exist
+        $principal = User::firstOrCreate(
+            ['email' => 'principal@example.edu.my'],
+            [
+                'name' => 'Dr. John Smith',
+                'password' => Hash::make('123456789'),
+                'is_new' => false,
+                'is_active' => true,
+            ]
+        );
+        $principal->assignRole('principal');
+        
+        // Create a default branch if it doesn't exist
+        $branch = Branch::firstOrCreate(
+            ['name' => 'Example Branch'],
             [
                 'address' => '123 Education St',
                 'city' => 'Learning City',
                 'postal_code' => '12345',
                 'country' => 'Malaysia',
-                'phone' => '+60123456789',
-                'email' => 'info@example.edu.my',
-                'principal_name' => 'Dr. John Smith',
+                'principal_id' => $principal->id,
                 'established_year' => 2000,
                 'description' => 'A leading educational institution committed to excellence in teaching and learning.',
                 'status' => true
@@ -45,11 +58,16 @@ class DatabaseSeeder extends Seeder
         );
         
         // Create a default class if it doesn't exist
-        $class = SchoolClass::firstOrCreate(
+        $class = BranchClass::firstOrCreate(
             ['code' => 'G1'],
             [
-                'school_id' => $school->id,
+                'branch_id' => $branch->id,
                 'name' => 'Grade 1',
+                'curriculum_type' => 'kss',
+                'grade_level' => 'form_1',
+                'academic_session' => '2025/2026',
+                'language_medium' => 'malay',
+                'capacity' => 40,
                 'description' => 'First grade class',
                 'status' => true
             ]

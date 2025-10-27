@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Student;
-use App\Models\School;
-use App\Models\SchoolClass;
+use App\Models\Branch;
+use App\Models\BranchClass;
 use App\Http\Requests\StoreStudentRequest;
 use App\Http\Requests\UpdateStudentRequest;
 use Illuminate\Http\Request;
@@ -14,23 +14,70 @@ use Inertia\Response;
 
 class StudentController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $students = Student::with(['school', 'schoolClass'])
+        $students = Student::with(['branch', 'branchClass'])
+            ->when($request->string('search')->isNotEmpty(), function ($query) use ($request) {
+                $term = $request->string('search');
+                $query->where(function ($q) use ($term) {
+                    $q->where('first_name', 'like', "%{$term}%")
+                      ->orWhere('last_name', 'like', "%{$term}%")
+                      ->orWhere('email', 'like', "%{$term}%")
+                      ->orWhere('phone', 'like', "%{$term}%")
+                      ->orWhere('admission_number', 'like', "%{$term}%")
+                      ->orWhere('roll_number', 'like', "%{$term}%")
+                      ->orWhere('parent_name', 'like', "%{$term}%")
+                      ->orWhere('parent_phone', 'like', "%{$term}%")
+                      ->orWhere('parent_email', 'like', "%{$term}%")
+                      ->orWhere('class', 'like', "%{$term}%")
+                      ->orWhere('section', 'like', "%{$term}%")
+                      ->orWhereHas('branch', function ($branchQuery) use ($term) {
+                          $branchQuery->where('name', 'like', "%{$term}%");
+                      });
+                });
+            })
+            ->when($request->filled('branch'), function ($query) use ($request) {
+                $query->where('branch_id', $request->string('branch'));
+            })
+            ->when($request->filled('class'), function ($query) use ($request) {
+                $query->where('class', $request->string('class'));
+            })
+            ->when($request->filled('gender'), function ($query) use ($request) {
+                $query->where('gender', $request->string('gender'));
+            })
+            ->when($request->filled('status'), function ($query) use ($request) {
+                $query->where('status', $request->boolean('status'));
+            })
             ->latest()
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
-        return Inertia::render('Students/Index', [
-            'students' => $students
+        // Get filter options
+        $branches = Branch::where('status', true)->get(['id', 'name']);
+        $classes = Student::distinct()->pluck('class')->filter()->sort()->values();
+        $genders = ['male', 'female', 'other'];
+
+        return Inertia::render('organization/students/Index', [
+            'students' => $students,
+            'branches' => $branches,
+            'classes' => $classes,
+            'genders' => $genders,
+            'filters' => [
+                'search' => (string) $request->string('search'),
+                'branch' => (string) $request->string('branch'),
+                'class' => (string) $request->string('class'),
+                'gender' => (string) $request->string('gender'),
+                'status' => $request->has('status') ? $request->boolean('status') : null,
+            ],
         ]);
     }
 
     public function create(): Response
     {
-        $schools = School::where('status', true)->get();
-        $classes = SchoolClass::where('status', true)->get();
-        return Inertia::render('Students/Create', [
-            'schools' => $schools,
+        $branches = Branch::where('status', true)->get();
+        $classes = BranchClass::where('status', true)->get();
+        return Inertia::render('organization/students/Create', [
+            'branches' => $branches,
             'classes' => $classes
         ]);
     }
@@ -51,17 +98,17 @@ class StudentController extends Controller
 
     public function show(Student $student): Response
     {
-        return Inertia::render('Students/Show', [
-            'student' => $student->load('school')
+        return Inertia::render('organization/students/Show', [
+            'student' => $student->load('branch')
         ]);
     }
 
     public function edit(Student $student): Response
     {
-        $schools = School::where('status', true)->get();
-        return Inertia::render('Students/Edit', [
-            'student' => $student->load('school'),
-            'schools' => $schools
+        $branches = Branch::where('status', true)->get();
+        return Inertia::render('organization/students/Edit', [
+            'student' => $student->load('branch'),
+            'branches' => $branches
         ]);
     }
 

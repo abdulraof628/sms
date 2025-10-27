@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\School;
-use App\Models\SchoolClass;
+use App\Models\Branch;
+use App\Models\BranchClass;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -23,7 +23,7 @@ class StudentFactory extends Factory
         $lastName = $this->faker->lastName();
         
         return [
-            'school_id' => School::factory(),
+            'branch_id' => Branch::factory(),
             'first_name' => $firstName,
             'last_name' => $lastName,
             'email' => strtolower($firstName . '.' . $lastName . '@example.com'),
@@ -32,7 +32,7 @@ class StudentFactory extends Factory
             'gender' => $gender,
             'address' => $this->faker->streetAddress(),
             'admission_number' => 'STD' . $this->faker->unique()->numberBetween(1000, 9999),
-            'class' => SchoolClass::factory(),
+            'class' => BranchClass::factory(),
             'section' => $this->faker->randomElement(['A', 'B', 'C', 'D']),
             'roll_number' => $this->faker->unique()->numberBetween(1, 50),
             'parent_name' => $this->faker->name('male' == $gender ? 'female' : 'male') . ' ' . $lastName,

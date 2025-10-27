@@ -14,9 +14,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('daily_reports', function (Blueprint $table) {
-            $table->ulid('id')->primary();
-            $table->foreignIdFor(Student::class);
-            $table->foreignIdFor(Teacher::class);
+            $table->uuid('id')->primary();
+            $table->foreignUuid('student_id')->constrained()->onDelete('cascade');
+            $table->foreignUuid('teacher_id')->constrained()->onDelete('cascade');
             $table->date('date');
             $table->text('report');
             $table->string('status')->default('draft');

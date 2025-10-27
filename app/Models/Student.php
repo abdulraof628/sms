@@ -4,13 +4,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class Student extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuids;
+
+    protected $keyType = 'string';
+    public $incrementing = false;
 
     protected $fillable = [
-        'school_id',
+        'branch_id',
         'first_name',
         'last_name',
         'email',
@@ -35,14 +39,14 @@ class Student extends Model
         'status' => 'boolean',
     ];
 
-    public function school()
+    public function branch()
     {
-        return $this->belongsTo(School::class);
+        return $this->belongsTo(Branch::class);
     }
 
-    public function schoolClass()
+    public function branchClass()
     {
-        return $this->belongsTo(SchoolClass::class, 'class', 'code');
+        return $this->belongsTo(BranchClass::class, 'class', 'code');
     }
 
     public function getFullNameAttribute()

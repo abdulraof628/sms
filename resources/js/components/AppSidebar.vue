@@ -5,15 +5,15 @@ import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, Users, UserCircle } from 'lucide-vue-next';
+import { BookOpen, Folder, LayoutGrid, Users, UserCircle, Briefcase, Clock } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 const platformNavItems: NavItem[] = [
     {
         title: 'Dashboard',
-        href: '/business/dashboard',
+        href: '/super-admin/dashboard',
         icon: LayoutGrid,
-        permission: 'view-business-dashboard',
+        permission: 'view-superadmin-dashboard',
     },
     // {
     //     title: 'Tenants',
@@ -22,10 +22,10 @@ const platformNavItems: NavItem[] = [
     //     permission: 'view-tenants',
     // },
     {
-        title: 'Organizations',
-        href: '/business/organizations',
+        title: 'Tenants',
+        href: '/super-admin/tenants',
         icon: UserCircle,
-        permission: 'view-organizations',
+        permission: 'view-tenants',
     },
 ]
 
@@ -37,10 +37,10 @@ const managementNavItems: NavItem[] = [
         permission: 'view-dashboard',
     },
     {
-        title: 'Schools',
-        href: '/schools',
+        title: 'Branches',
+        href: '/branches',
         icon: Users,
-        permission: 'view-schools',
+        permission: 'view-branches',
     },
     {
         title: 'Classes',
@@ -53,6 +53,23 @@ const managementNavItems: NavItem[] = [
         href: '/students',
         icon: Users,
         permission: 'view-students',
+    },
+];
+
+const staffNavItems: NavItem[] = [
+    {
+        title: 'Staff',
+
+        
+        href: '/staff',
+        icon: Briefcase,
+        permission: 'view-users',
+    },
+    {
+        title: 'Attendance',
+        href: '/staff-attendance',
+        icon: Clock,
+        permission: 'view-users',
     },
 ];
 
@@ -94,8 +111,9 @@ const footerNavItems: NavItem[] = [
         </SidebarHeader>
 
         <SidebarContent>
-            <NavMain title="Business Management" :items="platformNavItems" />
-            <NavMain title="School Management" :items="managementNavItems" />
+            <NavMain title="Management" :items="platformNavItems" />
+            <NavMain title="Branch Management" :items="managementNavItems" />
+            <NavMain title="Staff Management" :items="staffNavItems" />
             <NavMain title="Teacher Management" :items="teacherNavItems" />
         </SidebarContent>
 

@@ -1,48 +1,65 @@
 <script setup lang="ts">
-import {
-  DateFormatter,
-  type DateValue,
-  getLocalTimeZone,
-  parseDate,
-  today,
-} from '@internationalized/date'
-import { CalendarIcon } from 'lucide-vue-next'
-import { ref, watch } from 'vue'
+import { computed } from 'vue'
+import { CalendarDate, getLocalTimeZone, parseDate, today } from '@internationalized/date'
+import { Calendar as CalendarIcon } from 'lucide-vue-next'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 
-const props = defineProps<{
-  modelValue?: any
+interface Props {
+  modelValue?: string | null
+  placeholder?: string
+  disabled?: boolean
   class?: string
-}>()
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  placeholder: 'Pick a date',
+})
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: any): void
+  'update:modelValue': [value: string | null]
 }>()
 
-const df = new DateFormatter('en-US', {
-  dateStyle: 'long',
-})
-
-const value = ref<any>(props.modelValue)
-
-watch(() => props.modelValue, (newValue) => {
-  if (newValue) {
-    value.value = parseDate(newValue.toString())
-  } else {
-    value.value = undefined
+// Convert string date to CalendarDate for the calendar component
+const calendarValue = computed(() => {
+  if (!props.modelValue) return undefined
+  try {
+    return parseDate(props.modelValue)
+  } catch {
+    return undefined
   }
 })
 
-const updateValue = (newValue: any) => {
-  if (newValue) {
-    value.value = parseDate(newValue.toString())
-  } else {
-    value.value = undefined
+// Format date for display
+const formatDate = (date: string | null | undefined) => {
+  if (!date) return props.placeholder
+  try {
+    const parsedDate = parseDate(date)
+    return parsedDate.toDate(getLocalTimeZone()).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
+  } catch {
+    return props.placeholder
   }
-  emit('update:modelValue', newValue)
+}
+
+const handleDateSelect = (date: CalendarDate | undefined) => {
+  if (!date) {
+    emit('update:modelValue', null)
+    return
+  }
+  
+  // Convert CalendarDate to ISO string format (YYYY-MM-DD)
+  const isoString = `${date.year}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`
+  emit('update:modelValue', isoString)
 }
 </script>
 
@@ -52,27 +69,23 @@ const updateValue = (newValue: any) => {
       <Button
         variant="outline"
         :class="cn(
-          'w-[280px] justify-start text-left font-normal',
-          !value && 'text-muted-foreground',
+          'w-full justify-start text-left font-normal',
+          !modelValue && 'text-muted-foreground',
           props.class
         )"
+        :disabled="disabled"
       >
         <CalendarIcon class="mr-2 h-4 w-4" />
-        {{ value ? df.format(value.toDate(getLocalTimeZone())) : "Pick a date" }}
+        {{ formatDate(modelValue) }}
       </Button>
     </PopoverTrigger>
-    <PopoverContent class="w-auto p-0">
-      <Calendar v-model="value" @update:modelValue="updateValue" initial-focus />
+    <PopoverContent class="w-auto p-0" align="start">
+      <Calendar
+        :model-value="calendarValue"
+        @update:model-value="handleDateSelect"
+        :default-value="today(getLocalTimeZone())"
+        initial-focus
+      />
     </PopoverContent>
   </Popover>
 </template>
-
-<style scoped>
-/* Remove hover background for calendar cells */
-:deep([data-slot="calendar-cell-trigger"][data-highlighted]) {
-  background-color: transparent !important;
-}
-:deep([data-slot="calendar-cell-trigger"]:hover) {
-  background-color: transparent !important;
-}
-</style> 

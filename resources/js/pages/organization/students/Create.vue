@@ -1,453 +1,337 @@
 <template>
-  <AppLayout title="Add Student">
-    <template #header>
-      <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-        Add Student
-      </h2>
-    </template>
+  <Head title="Create Student" />
 
-    <div class="py-12">
-      <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+  <AppLayout :breadcrumbs="breadcrumbs">
+
+    <div class="mx-auto w-full p-6">
+      <!-- Header Section -->
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h1 class="text-3xl font-bold text-foreground">Create New Student</h1>
+          <p class="text-muted-foreground mt-2">Add a new student to the system</p>
+        </div>
+        <div>
+          <Button variant="outline" @click="router.visit(route('students.index'))">
+            <ArrowLeft class="h-4 w-4 mr-2" />
+            Back to Students
+          </Button>
+        </div>
+      </div>
+
+      <form @submit.prevent="submit" class="space-y-6">
+        <!-- Basic Information Card -->
         <Card>
           <CardHeader>
-            <CardTitle>Student Information</CardTitle>
+            <CardTitle>Basic Information</CardTitle>
+            <CardDescription>Student's primary details and identification</CardDescription>
           </CardHeader>
           <CardContent>
-            <form @submit.prevent="submit" class="space-y-6">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="space-y-2">
-                  <Label for="school_id">School</Label>
-                  <Combobox v-model="selectedSchool" by="id">
-                    <ComboboxAnchor as-child>
-                      <ComboboxTrigger as-child>
-                        <Button variant="outline" class="w-full justify-between">
-                          {{ selectedSchool?.name ?? 'Select a school' }}
-                          <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                        </Button>
-                      </ComboboxTrigger>
-                    </ComboboxAnchor>
-
-                    <ComboboxList>
-                      <div class="relative w-full min-w-full items-center">
-                        <ComboboxInput class="mt-0.5 focus-visible:ring-0 border-0 border-b rounded-none h-10" placeholder="Search schools..." />
-                        <span class="absolute start-0 inset-y-0 flex items-center justify-center px-3">
-                          <Search class="size-4 text-muted-foreground" />
-                        </span>
-                      </div>
-
-                      <ComboboxEmpty>
-                        No schools found.
-                      </ComboboxEmpty>
-
-                      <ComboboxGroup>
-                        <ComboboxItem
-                          v-for="school in displaySchools"
-                          :key="school.id"
-                          :value="school"
-                          class="w-full"
-                        >
-                          {{ school.name }}
-                          <ComboboxItemIndicator>
-                            <Check :class="cn('ml-auto h-4 w-4')" />
-                          </ComboboxItemIndicator>
-                        </ComboboxItem>
-                      </ComboboxGroup>
-                    </ComboboxList>
-                  </Combobox>
-                  <p v-if="form.errors.school_id" class="text-sm text-red-500">
-                    {{ form.errors.school_id }}
-                  </p>
-                </div>
-
-                <div class="space-y-2">
-                  <Label for="admission_number">Admission Number</Label>
-                  <Input
-                    id="admission_number"
-                    v-model="form.admission_number"
-                    :error="form.errors.admission_number"
-                  />
-                  <p v-if="form.errors.admission_number" class="text-sm text-red-500">
-                    {{ form.errors.admission_number }}
-                  </p>
-                </div>
-
-                <div class="space-y-2">
-                  <Label for="first_name">First Name</Label>
-                  <Input
-                    id="first_name"
-                    v-model="form.first_name"
-                    :error="form.errors.first_name"
-                  />
-                  <p v-if="form.errors.first_name" class="text-sm text-red-500">
-                    {{ form.errors.first_name }}
-                  </p>
-                </div>
-
-                <div class="space-y-2">
-                  <Label for="last_name">Last Name</Label>
-                  <Input
-                    id="last_name"
-                    v-model="form.last_name"
-                    :error="form.errors.last_name"
-                  />
-                  <p v-if="form.errors.last_name" class="text-sm text-red-500">
-                    {{ form.errors.last_name }}
-                  </p>
-                </div>
-
-                <div class="space-y-2">
-                  <Label for="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    v-model="form.email"
-                    :error="form.errors.email"
-                  />
-                  <p v-if="form.errors.email" class="text-sm text-red-500">
-                    {{ form.errors.email }}
-                  </p>
-                </div>
-
-                <div class="space-y-2">
-                  <Label for="phone">Phone</Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    v-model="form.phone"
-                    :error="form.errors.phone"
-                  />
-                  <p v-if="form.errors.phone" class="text-sm text-red-500">
-                    {{ form.errors.phone }}
-                  </p>
-                </div>
-
-                <div class="space-y-2">
-                  <Label for="date_of_birth">Date of Birth</Label>
-                  <DatePicker
-                    v-model="dateOfBirthValue"
-                    :class="'w-full'"
-                  />
-                  <p v-if="form.errors.date_of_birth" class="text-sm text-red-500">
-                    {{ form.errors.date_of_birth }}
-                  </p>
-                </div>
-
-                <div class="space-y-2">
-                  <Label for="gender">Gender</Label>
-                  <Combobox v-model="selectedGender">
-                    <ComboboxAnchor as-child>
-                      <ComboboxTrigger as-child>
-                        <Button variant="outline" class="w-full justify-between">
-                          {{ selectedGender ?? 'Select gender' }}
-                          <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                        </Button>
-                      </ComboboxTrigger>
-                    </ComboboxAnchor>
-
-                    <ComboboxList class="w-full min-w-full">
-                      <div class="relative w-full min-w-full items-center">
-                        <ComboboxInput class="mt-0.5 focus-visible:ring-0 border-0 border-b rounded-none h-10" placeholder="Search gender..." />
-                        <span class="absolute start-0 inset-y-0 flex items-center justify-center px-3">
-                          <Search class="size-4 text-muted-foreground" />
-                        </span>
-                      </div>
-
-                      <ComboboxEmpty>
-                        No gender options found.
-                      </ComboboxEmpty>
-
-                      <ComboboxGroup>
-                        <ComboboxItem value="male" class="w-full">
-                          Male
-                          <ComboboxItemIndicator>
-                            <Check :class="cn('ml-auto h-4 w-4')" />
-                          </ComboboxItemIndicator>
-                        </ComboboxItem>
-                        <ComboboxItem value="female" class="w-full">
-                          Female
-                          <ComboboxItemIndicator>
-                            <Check :class="cn('ml-auto h-4 w-4')" />
-                          </ComboboxItemIndicator>
-                        </ComboboxItem>
-                        <ComboboxItem value="other" class="w-full">
-                          Other
-                          <ComboboxItemIndicator>
-                            <Check :class="cn('ml-auto h-4 w-4')" />
-                          </ComboboxItemIndicator>
-                        </ComboboxItem>
-                        <ComboboxItem value="prefer_not_to_say" class="w-full">
-                          Prefer not to say
-                          <ComboboxItemIndicator>
-                            <Check :class="cn('ml-auto h-4 w-4')" />
-                          </ComboboxItemIndicator>
-                        </ComboboxItem>
-                      </ComboboxGroup>
-                    </ComboboxList>
-                  </Combobox>
-                  <p v-if="form.errors.gender" class="text-sm text-red-500">
-                    {{ form.errors.gender }}
-                  </p>
-                </div>
-
-                <div class="space-y-2">
-                  <Label for="class">Class</Label>
-                  <Combobox v-model="selectedClass" by="code">
-                    <ComboboxAnchor as-child>
-                      <ComboboxTrigger as-child>
-                        <Button variant="outline" class="w-full justify-between" :disabled="!selectedSchool">
-                          {{ selectedClass?.name ?? 'Select a class' }}
-                          <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                        </Button>
-                      </ComboboxTrigger>
-                    </ComboboxAnchor>
-
-                    <ComboboxList>
-                      <div class="relative w-full min-w-full items-center">
-                        <ComboboxInput class="mt-0.5 focus-visible:ring-0 border-0 border-b rounded-none h-10" placeholder="Search classes..." />
-                        <span class="absolute start-0 inset-y-0 flex items-center justify-center px-3">
-                          <Search class="size-4 text-muted-foreground" />
-                        </span>
-                      </div>
-
-                      <ComboboxEmpty>
-                        No classes found.
-                      </ComboboxEmpty>
-
-                      <ComboboxGroup>
-                        <ComboboxItem
-                          v-for="classItem in filteredClasses"
-                          :key="classItem.id"
-                          :value="classItem"
-                          class="w-full"
-                        >
-                          {{ classItem.name }}
-                          <ComboboxItemIndicator>
-                            <Check :class="cn('ml-auto h-4 w-4')" />
-                          </ComboboxItemIndicator>
-                        </ComboboxItem>
-                      </ComboboxGroup>
-                    </ComboboxList>
-                  </Combobox>
-                  <p v-if="form.errors.class" class="text-sm text-red-500">
-                    {{ form.errors.class }}
-                  </p>
-                </div>
-
-                <div class="space-y-2">
-                  <Label for="section">Section</Label>
-                  <Input
-                    id="section"
-                    v-model="form.section"
-                    :error="form.errors.section"
-                  />
-                  <p v-if="form.errors.section" class="text-sm text-red-500">
-                    {{ form.errors.section }}
-                  </p>
-                </div>
-
-                <div class="space-y-2">
-                  <Label for="roll_number">Roll Number</Label>
-                  <Input
-                    id="roll_number"
-                    v-model="form.roll_number"
-                    :error="form.errors.roll_number"
-                  />
-                  <p v-if="form.errors.roll_number" class="text-sm text-red-500">
-                    {{ form.errors.roll_number }}
-                  </p>
-                </div>
-
-                <div class="space-y-2">
-                  <Label for="parent_name">Parent Name</Label>
-                  <Input
-                    id="parent_name"
-                    v-model="form.parent_name"
-                    :error="form.errors.parent_name"
-                  />
-                  <p v-if="form.errors.parent_name" class="text-sm text-red-500">
-                    {{ form.errors.parent_name }}
-                  </p>
-                </div>
-
-                <div class="space-y-2">
-                  <Label for="parent_phone">Parent Phone</Label>
-                  <Input
-                    id="parent_phone"
-                    type="tel"
-                    v-model="form.parent_phone"
-                    :error="form.errors.parent_phone"
-                  />
-                  <p v-if="form.errors.parent_phone" class="text-sm text-red-500">
-                    {{ form.errors.parent_phone }}
-                  </p>
-                </div>
-
-                <div class="space-y-2">
-                  <Label for="parent_email">Parent Email</Label>
-                  <Input
-                    id="parent_email"
-                    type="email"
-                    v-model="form.parent_email"
-                    :error="form.errors.parent_email"
-                  />
-                  <p v-if="form.errors.parent_email" class="text-sm text-red-500">
-                    {{ form.errors.parent_email }}
-                  </p>
-                </div>
+            <div class="grid gap-6 md:grid-cols-2">
+              <div class="space-y-2">
+                <Label for="branch_id">Branch <span class="text-red-500">*</span></Label>
+                <SimpleCombobox
+                  v-model="form.branch_id"
+                  :options="branchOptions"
+                  placeholder="Select a branch"
+                  class="w-full"
+                />
+                <InputError :message="form.errors.branch_id" />
               </div>
 
+              <div class="space-y-2">
+                <Label for="admission_number">Admission Number <span class="text-red-500">*</span></Label>
+                <Input
+                  id="admission_number"
+                  type="text"
+                  class="mt-1 block w-full"
+                  v-model="form.admission_number"
+                />
+                <InputError :message="form.errors.admission_number" />
+              </div>
+
+              <div class="space-y-2">
+                <Label for="first_name">First Name <span class="text-red-500">*</span></Label>
+                <Input
+                  id="first_name"
+                  type="text"
+                  class="mt-1 block w-full"
+                  v-model="form.first_name"
+                  autofocus
+                />
+                <InputError :message="form.errors.first_name" />
+              </div>
+
+              <div class="space-y-2">
+                <Label for="last_name">Last Name <span class="text-red-500">*</span></Label>
+                <Input
+                  id="last_name"
+                  type="text"
+                  class="mt-1 block w-full"
+                  v-model="form.last_name"
+                />
+                <InputError :message="form.errors.last_name" />
+              </div>
+
+              <div class="space-y-2">
+                <Label for="email">Email <span class="text-red-500">*</span></Label>
+                <Input
+                  id="email"
+                  type="email"
+                  class="mt-1 block w-full"
+                  v-model="form.email"
+                />
+                <InputError :message="form.errors.email" />
+              </div>
+
+              <div class="space-y-2">
+                <Label for="phone">Phone</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  class="mt-1 block w-full"
+                  v-model="form.phone"
+                />
+                <InputError :message="form.errors.phone" />
+              </div>
+
+              <div class="space-y-2">
+                <Label for="date_of_birth">Date of Birth <span class="text-red-500">*</span></Label>
+                <Input
+                  id="date_of_birth"
+                  type="date"
+                  class="mt-1 block w-full"
+                  v-model="form.date_of_birth"
+                />
+                <InputError :message="form.errors.date_of_birth" />
+              </div>
+
+              <div class="space-y-2">
+                <Label for="gender">Gender <span class="text-red-500">*</span></Label>
+                <SimpleCombobox
+                  v-model="form.gender"
+                  :options="genderOptions"
+                  placeholder="Select gender"
+                  class="w-full"
+                />
+                <InputError :message="form.errors.gender" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <!-- Academic Information Card -->
+        <Card>
+          <CardHeader>
+            <CardTitle>Academic Information</CardTitle>
+            <CardDescription>Class details and academic records</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div class="grid gap-6 md:grid-cols-2">
+              <div class="space-y-2">
+                <Label for="class">Class <span class="text-red-500">*</span></Label>
+                <Input
+                  id="class"
+                  type="text"
+                  class="mt-1 block w-full"
+                  v-model="form.class"
+                />
+                <InputError :message="form.errors.class" />
+              </div>
+
+              <div class="space-y-2">
+                <Label for="section">Section <span class="text-red-500">*</span></Label>
+                <Input
+                  id="section"
+                  type="text"
+                  class="mt-1 block w-full"
+                  v-model="form.section"
+                />
+                <InputError :message="form.errors.section" />
+              </div>
+
+              <div class="space-y-2">
+                <Label for="roll_number">Roll Number</Label>
+                <Input
+                  id="roll_number"
+                  type="text"
+                  class="mt-1 block w-full"
+                  v-model="form.roll_number"
+                />
+                <InputError :message="form.errors.roll_number" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <!-- Parent Information Card -->
+        <Card>
+          <CardHeader>
+            <CardTitle>Parent Information</CardTitle>
+            <CardDescription>Parent or guardian contact details</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div class="grid gap-6 md:grid-cols-2">
+              <div class="space-y-2">
+                <Label for="parent_name">Parent Name <span class="text-red-500">*</span></Label>
+                <Input
+                  id="parent_name"
+                  type="text"
+                  class="mt-1 block w-full"
+                  v-model="form.parent_name"
+                />
+                <InputError :message="form.errors.parent_name" />
+              </div>
+
+              <div class="space-y-2">
+                <Label for="parent_phone">Parent Phone <span class="text-red-500">*</span></Label>
+                <Input
+                  id="parent_phone"
+                  type="tel"
+                  class="mt-1 block w-full"
+                  v-model="form.parent_phone"
+                />
+                <InputError :message="form.errors.parent_phone" />
+              </div>
+
+              <div class="space-y-2 md:col-span-2">
+                <Label for="parent_email">Parent Email</Label>
+                <Input
+                  id="parent_email"
+                  type="email"
+                  class="mt-1 block w-full"
+                  v-model="form.parent_email"
+                />
+                <InputError :message="form.errors.parent_email" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <!-- Additional Information Card -->
+        <Card>
+          <CardHeader>
+            <CardTitle>Additional Information</CardTitle>
+            <CardDescription>Address and other details</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div class="grid gap-6">
               <div class="space-y-2">
                 <Label for="address">Address</Label>
                 <Textarea
                   id="address"
+                  class="mt-1 block w-full"
                   v-model="form.address"
-                  :error="form.errors.address"
                 />
-                <p v-if="form.errors.address" class="text-sm text-red-500">
-                  {{ form.errors.address }}
-                </p>
+                <InputError :message="form.errors.address" />
               </div>
 
               <div class="space-y-2">
                 <Label for="medical_conditions">Medical Conditions</Label>
                 <Textarea
                   id="medical_conditions"
+                  class="mt-1 block w-full"
                   v-model="form.medical_conditions"
-                  :error="form.errors.medical_conditions"
                 />
-                <p v-if="form.errors.medical_conditions" class="text-sm text-red-500">
-                  {{ form.errors.medical_conditions }}
-                </p>
+                <InputError :message="form.errors.medical_conditions" />
               </div>
 
               <div class="space-y-2">
                 <Label for="notes">Notes</Label>
                 <Textarea
                   id="notes"
+                  class="mt-1 block w-full"
                   v-model="form.notes"
-                  :error="form.errors.notes"
                 />
-                <p v-if="form.errors.notes" class="text-sm text-red-500">
-                  {{ form.errors.notes }}
-                </p>
+                <InputError :message="form.errors.notes" />
               </div>
 
-              <div class="flex justify-end space-x-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  @click="router.visit(route('students.index'))"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  :disabled="form.processing"
-                >
-                  Save Student
-                </Button>
+              <div class="flex items-center space-x-2">
+                <Switch id="status" v-model="form.status" />
+                <Label for="status">Active</Label>
               </div>
-            </form>
+            </div>
           </CardContent>
         </Card>
-      </div>
+
+        <!-- Actions -->
+        <div class="flex justify-end gap-1">
+          <Button type="button" variant="outline" @click="router.visit(route('students.index'))">
+            Cancel
+          </Button>
+          <Button type="submit" :disabled="form.processing">
+            <Plus class="h-4 w-4 mr-2" />
+            Create Student
+          </Button>
+        </div>
+      </form>
     </div>
   </AppLayout>
 </template>
 
 <script setup lang="ts">
-import { Head, useForm, router } from '@inertiajs/vue3';
-import AppLayout from '@/layouts/AppLayout.vue';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Check, ChevronsUpDown, Search } from 'lucide-vue-next';
-import { ref, computed, watch } from 'vue';
-import { cn } from '@/lib/utils';
-import { 
-  Combobox,
-  ComboboxAnchor,
-  ComboboxEmpty,
-  ComboboxGroup,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxItemIndicator,
-  ComboboxList,
-  ComboboxTrigger
-} from '@/components/ui/combobox';
-import { Textarea } from '@/components/ui/textarea';
-import DatePicker from '@/components/ui/date-picker/DatePicker.vue'
-import { parseDate, type DateValue } from '@internationalized/date'
+import { Head, useForm, router } from '@inertiajs/vue3'
+import AppLayout from '@/layouts/AppLayout.vue'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import InputError from '@/components/InputError.vue'
+import { Button } from '@/components/ui/button'
+import { Switch } from '@/components/ui/switch'
+import SimpleCombobox from '@/components/ui/SimpleCombobox.vue'
+import { ArrowLeft, Plus } from 'lucide-vue-next'
+import { computed } from 'vue'
+import { type BreadcrumbItem } from '@/types'
 
-interface School {
-    id: string;
-    name: string;
+const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'Dashboard',
+        href: '/dashboard',
+    },
+    {
+        title: 'Students',
+        href: '/students',
+    },
+    {
+        title: 'Create Student',
+        href: '/students/create',
+    },
+]
+
+interface Branch {
+    id: string
+    name: string
 }
 
-interface SchoolClass {
-    id: string;
-    school_id: string;
-    name: string;
-    code: string;
-    description: string | null;
-    status: boolean;
+interface BranchClass {
+    id: string
+    name: string
+    code: string
 }
 
-const props = defineProps<{
-    schools: School[];
-    classes: SchoolClass[];
-}>();
+interface Props {
+    branches: Branch[]
+    classes: BranchClass[]
+}
 
-// Sample schools data for demonstration
-const sampleSchools = [
-    { id: '1', name: 'Springfield High School' },
-    { id: '2', name: 'Lincoln Academy' },
-    { id: '3', name: 'Riverside College' },
-    { id: '4', name: 'St. Mary\'s School' },
-    { id: '5', name: 'Central High School' }
-];
+const props = defineProps<Props>()
 
-// Use sample data if no schools are provided
-const displaySchools = props.schools.length > 0 ? props.schools : sampleSchools;
+// Convert branches to the format expected by SimpleCombobox
+const branchOptions = computed(() => {
+    return props.branches.map(branch => ({
+        value: branch.id,
+        label: branch.name
+    }))
+})
 
-const selectedSchool = ref<School | null>(null);
-const selectedGender = ref<string | null>(null);
-const selectedClass = ref<SchoolClass | null>(null);
-
-// Filter classes based on selected school
-const filteredClasses = computed(() => {
-    if (!selectedSchool.value) return [];
-    return props.classes.filter(c => c.school_id === selectedSchool.value?.id);
-});
-
-// Watch for school changes to reset class selection and update form
-watch(selectedSchool, (newSchool) => {
-    selectedClass.value = null;
-    form.class = '';
-    if (newSchool) {
-        form.school_id = newSchool.id;
-    } else {
-        form.school_id = '';
-    }
-});
-
-// Watch for class changes to update form
-watch(selectedClass, (newClass) => {
-    if (newClass) {
-        form.class = newClass.code;
-    } else {
-        form.class = '';
-    }
-});
-
-// Watch for gender changes to update form
-watch(selectedGender, (newGender) => {
-    form.gender = newGender || '';
-});
+const genderOptions = [
+    { value: 'male', label: 'Male' },
+    { value: 'female', label: 'Female' },
+    { value: 'other', label: 'Other' }
+]
 
 const form = useForm({
-    school_id: '',
+    branch_id: '',
     admission_number: '',
     first_name: '',
     last_name: '',
@@ -464,23 +348,10 @@ const form = useForm({
     address: '',
     medical_conditions: '',
     notes: '',
-});
-
-const dateOfBirthValue = ref<any>(form.date_of_birth ? parseDate(form.date_of_birth) : undefined)
-
-watch(dateOfBirthValue, (newVal) => {
-  form.date_of_birth = newVal ? newVal.toString() : ''
-})
-
-watch(() => form.date_of_birth, (newVal) => {
-  if (!newVal) {
-    dateOfBirthValue.value = undefined
-  } else if (!dateOfBirthValue.value || dateOfBirthValue.value.toString() !== newVal) {
-    dateOfBirthValue.value = parseDate(newVal)
-  }
+    status: true,
 })
 
 const submit = () => {
-    form.post(route('students.store'));
-};
-</script> 
+    form.post(route('students.store'))
+}
+</script>

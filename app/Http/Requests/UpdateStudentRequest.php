@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Models\SchoolClass;
+use App\Models\BranchClass;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -26,7 +26,7 @@ class UpdateStudentRequest extends FormRequest
         $studentId = $this->route('student')->id;
         
         return [
-            'school_id' => 'required|exists:schools,id',
+            'branch_id' => 'required|exists:branches,id',
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'email' => 'required|email|unique:students,email,' . $studentId,
@@ -40,13 +40,13 @@ class UpdateStudentRequest extends FormRequest
                 'string',
                 'max:50',
                 function ($attribute, $value, $fail) {
-                    $class = SchoolClass::where('code', $value)
-                        ->where('school_id', $this->school_id)
+                    $class = BranchClass::where('code', $value)
+                        ->where('branch_id', $this->branch_id)
                         ->where('status', true)
                         ->first();
                     
                     if (!$class) {
-                        $fail('The selected class is invalid for this school.');
+                        $fail('The selected class is invalid for this branch.');
                     }
                 },
             ],
@@ -67,8 +67,8 @@ class UpdateStudentRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'school_id.required' => 'Please select a school.',
-            'school_id.exists' => 'The selected school does not exist.',
+            'branch_id.required' => 'Please select a branch.',
+            'branch_id.exists' => 'The selected branch does not exist.',
             'first_name.required' => 'First name is required.',
             'first_name.max' => 'First name cannot exceed 255 characters.',
             'last_name.required' => 'Last name is required.',
@@ -104,7 +104,7 @@ class UpdateStudentRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'school_id' => 'school',
+            'branch_id' => 'branch',
             'first_name' => 'first name',
             'last_name' => 'last name',
             'date_of_birth' => 'date of birth',
